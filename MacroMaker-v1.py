@@ -18,7 +18,7 @@ class EditorMacros:
         self.hotkey_iniciar = "ctrl+enter"
         self.hotkey_parar = "esc"
         self.macros = {}
-        self.macro_atual = {"nome": "Novo Macro", "etapas": [], "repeticoes": 1, "modo_tempo": "fixo", "tempo_fixo": "0.3"}
+        self.macro_atual = {"nome": "New Macro", "etapas": [], "repeticoes": 1, "modo_tempo": "steady", "tempo_fixo": "0.3"}
         self.executando = False
         self.thread_execucao = None
         self.aguardando_tecla = False
@@ -26,12 +26,12 @@ class EditorMacros:
 
         # Ações de mouse suportadas
         self.acoes_mouse = [
-            "mover",
-            "clique_esquerdo", 
-            "clique_direito",
-            "clique_meio",
-            "duplo_clique_esquerdo",
-            "duplo_clique_direito"
+            "move",
+            "left_click", 
+            "right_click",
+            "middle_click",
+            "double_left_click",
+            "double_right_click"
         ]
         # Hotkey para captura de mouse
         self.hotkey_captura_mouse = "ctrl+shift+c"
@@ -56,7 +56,7 @@ class EditorMacros:
             with open("config_global.json", "w", encoding="utf-8") as f:
                 json.dump(config, f, indent=2, ensure_ascii=False)
         except Exception as e:
-            print(f"Erro ao salvar configurações globais: {e}")
+            print(f"Error saving global settings: {e}")
 
     def carregar_configuracoes_globais(self):
         """Carrega as configurações globais do arquivo"""
@@ -69,7 +69,7 @@ class EditorMacros:
                 self.hotkey_parar = config.get("hotkey_parar", "esc")
                 self.hotkey_captura_mouse = config.get("hotkey_captura_mouse", "ctrl+shift+c")
         except Exception as e:
-            print(f"Erro ao carregar configurações globais: {e}")
+            print(f"Error loading global settings: {e}")
 
     def configurar_hotkeys(self):
         """Configura as hotkeys globais"""
@@ -81,9 +81,10 @@ class EditorMacros:
             keyboard.add_hotkey(self.hotkey_iniciar, self.iniciar_execucao)
             keyboard.add_hotkey(self.hotkey_parar, self.parar_execucao)
             
-            print(f"Hotkeys configuradas: {self.hotkey_iniciar}=Iniciar, {self.hotkey_parar}=Parar, {self.hotkey_captura_mouse}=Capt.Mouse")
+            print(f"Hotkeys configured: {self.hotkey_iniciar}=Start, {self.hotkey_parar}=Stop, {self.hotkey_captura_mouse}=Mouse Capt.")
         except Exception as e:
-            print(f"Aviso: Não foi possível configurar hotkeys: {e}")
+            print(f"Warning: unable to configure hotkeys: {e}")
+
 
 
     def criar_dialogo_padrao(self, titulo, largura=400, altura=300):
@@ -115,7 +116,7 @@ class EditorMacros:
                 with open("macros.json", "r", encoding="utf-8") as f:
                     self.macros = json.load(f)
         except Exception as e:
-            print(f"Erro ao carregar macros: {e}")
+            print(f"Error loading macros: {e}")
             self.macros = {}
     
     def salvar_macros(self):
@@ -124,7 +125,7 @@ class EditorMacros:
             with open("macros.json", "w", encoding="utf-8") as f:
                 json.dump(self.macros, f, indent=2, ensure_ascii=False)
         except Exception as e:
-            messagebox.showerror("Erro", f"Erro ao salvar macros: {e}")
+            messagebox.showerror("Error", f"Error saving macros: {e}")
     
     def criar_interface(self):
         """Cria a interface principal"""
@@ -171,7 +172,7 @@ class EditorMacros:
     
     def criar_frame_macros(self, parent):
         """Frame de gerenciamento de macros"""
-        frame = ttk.LabelFrame(parent, text="💾 Gerenciamento de Macros", padding=10)
+        frame = ttk.LabelFrame(parent, text="💾 Macro Management", padding=10)
         frame.pack(fill=tk.X, pady=5, padx=10)
         
         # Linha 1 - Seleção de macro
@@ -184,30 +185,30 @@ class EditorMacros:
         self.combo_macros.pack(side=tk.LEFT, padx=5)
         self.combo_macros.bind('<<ComboboxSelected>>', self.carregar_macro_selecionado)
         
-        ttk.Button(linha1, text="📁 Carregar Arquivo", command=self.carregar_arquivo).pack(side=tk.LEFT, padx=2)
-        ttk.Button(linha1, text="➕ Novo", command=self.novo_macro).pack(side=tk.LEFT, padx=2)
-        ttk.Button(linha1, text="✏️ Editar Nome", command=self.editar_nome_macro).pack(side=tk.LEFT, padx=2)
-        ttk.Button(linha1, text="🗑️ Excluir", command=self.excluir_macro).pack(side=tk.LEFT, padx=2)
-        ttk.Button(linha1, text="💾 Salvar", command=self.salvar_macro_atual).pack(side=tk.LEFT, padx=2)
+        ttk.Button(linha1, text="📁 Load File", command=self.carregar_arquivo).pack(side=tk.LEFT, padx=2)
+        ttk.Button(linha1, text="➕ New", command=self.novo_macro).pack(side=tk.LEFT, padx=2)
+        ttk.Button(linha1, text="✏️ Edit Name", command=self.editar_nome_macro).pack(side=tk.LEFT, padx=2)
+        ttk.Button(linha1, text="🗑️ Delete", command=self.excluir_macro).pack(side=tk.LEFT, padx=2)
+        ttk.Button(linha1, text="💾 Save", command=self.salvar_macro_atual).pack(side=tk.LEFT, padx=2)
         
         # Linha 2 - Nome do macro
         linha2 = ttk.Frame(frame)
         linha2.pack(fill=tk.X, pady=5)
         
-        ttk.Label(linha2, text="Nome:").pack(side=tk.LEFT, padx=5)
+        ttk.Label(linha2, text="Name:").pack(side=tk.LEFT, padx=5)
         self.entry_nome = ttk.Entry(linha2, width=40)
         self.entry_nome.pack(side=tk.LEFT, padx=5, fill=tk.X, expand=True)
-        self.entry_nome.insert(0, "Novo Macro")
+        self.entry_nome.insert(0, "New Macro")
 
     def atualizar_tempos_aleatorios(self):
         """Atualiza os tempos aleatórios na interface quando os valores mudam"""
-        if self.combo_modo_tempo.get() == "aleatório":
+        if self.combo_modo_tempo.get() == "random":
             self.atualizar_lista_etapas()
 
     def atualizar_tempos_fixos(self):
         """Atualiza os tempos fixos na interface quando o valor muda"""
         # Atualizar a lista de etapas para refletir o novo tempo fixo
-        if self.combo_modo_tempo.get() == "fixo":
+        if self.combo_modo_tempo.get() == "steady":
             self.atualizar_lista_etapas()
 
     def atualizar_interface_repeticao(self):
@@ -216,7 +217,7 @@ class EditorMacros:
 
     def criar_frame_configuracoes(self, parent):
         """Frame de configurações gerais"""
-        frame = ttk.LabelFrame(parent, text="⚙️ Configurações Gerais", padding=10)
+        frame = ttk.LabelFrame(parent, text="⚙️ General Settings", padding=10)
         frame.pack(fill=tk.X, pady=5, padx=10)
         
         linha = ttk.Frame(frame)
@@ -224,57 +225,57 @@ class EditorMacros:
         
         # Checkbox para ativar repetições por etapa
         self.var_repetir_acoes = tk.BooleanVar()
-        self.check_repetir_acoes = ttk.Checkbutton(linha, text="Repetição de ações", 
+        self.check_repetir_acoes = ttk.Checkbutton(linha, text="Step repetitions", 
                                                 variable=self.var_repetir_acoes,
                                                 command=self.atualizar_interface_repeticao)
         self.check_repetir_acoes.pack(side=tk.LEFT, padx=5)
         
         # Repetições
-        ttk.Label(linha, text="Repetições:").pack(side=tk.LEFT, padx=5)
+        ttk.Label(linha, text="Repetitions:").pack(side=tk.LEFT, padx=5)
         self.spin_repeticoes = ttk.Spinbox(linha, from_=1, to=100, width=5, validate="key")
         self.spin_repeticoes.configure(validatecommand=(self.spin_repeticoes.register(self.validar_numero), '%P'))
         self.spin_repeticoes.set(1)
         self.spin_repeticoes.pack(side=tk.LEFT, padx=5)
         
         # Modo de tempo
-        ttk.Label(linha, text="Modo Tempo:").pack(side=tk.LEFT, padx=5)
-        self.combo_modo_tempo = ttk.Combobox(linha, values=["fixo", "personalizado", "aleatório"], width=12)
-        self.combo_modo_tempo.set("fixo")
+        ttk.Label(linha, text="Time Mode:").pack(side=tk.LEFT, padx=5)
+        self.combo_modo_tempo = ttk.Combobox(linha, values=["steady", "personalized", "random"], width=12)
+        self.combo_modo_tempo.set("steady")
         self.combo_modo_tempo.pack(side=tk.LEFT, padx=5)
         self.combo_modo_tempo.bind('<<ComboboxSelected>>', self.atualizar_interface_tempo)
         
         # Frame para tempo fixo
         self.frame_tempo_fixo = ttk.Frame(frame)
-        ttk.Label(self.frame_tempo_fixo, text="Tempo fixo:").pack(side=tk.LEFT, padx=5)
+        ttk.Label(self.frame_tempo_fixo, text="Fixed time:").pack(side=tk.LEFT, padx=5)
         self.entry_tempo_fixo = ttk.Entry(self.frame_tempo_fixo, width=8)
         self.entry_tempo_fixo.insert(0, "0.3")
         self.entry_tempo_fixo.bind('<KeyRelease>', lambda e: self.atualizar_tempos_fixos())
         self.entry_tempo_fixo.bind('<FocusOut>', lambda e: self.atualizar_tempos_fixos())
         self.entry_tempo_fixo.pack(side=tk.LEFT, padx=2)
-        ttk.Label(self.frame_tempo_fixo, text="segundos").pack(side=tk.LEFT, padx=5)
+        ttk.Label(self.frame_tempo_fixo, text="seconds").pack(side=tk.LEFT, padx=5)
         
         # Frame para configurações de tempo aleatório
         self.frame_tempo_aleatorio = ttk.Frame(frame)
-        ttk.Label(self.frame_tempo_aleatorio, text="Entre").pack(side=tk.LEFT, padx=5)
+        ttk.Label(self.frame_tempo_aleatorio, text="Between").pack(side=tk.LEFT, padx=5)
         self.entry_tempo_min = ttk.Entry(self.frame_tempo_aleatorio, width=5)
         self.entry_tempo_min.insert(0, "0.3")
         self.entry_tempo_min.pack(side=tk.LEFT, padx=2)
         self.entry_tempo_min.bind('<KeyRelease>', lambda e: self.atualizar_tempos_aleatorios())
         self.entry_tempo_min.bind('<FocusOut>', lambda e: self.atualizar_tempos_aleatorios())
-        ttk.Label(self.frame_tempo_aleatorio, text="e").pack(side=tk.LEFT, padx=2)
+        ttk.Label(self.frame_tempo_aleatorio, text="and").pack(side=tk.LEFT, padx=2)
         self.entry_tempo_max = ttk.Entry(self.frame_tempo_aleatorio, width=5)
         self.entry_tempo_max.insert(0, "2.0")
         self.entry_tempo_max.pack(side=tk.LEFT, padx=2)
         self.entry_tempo_max.bind('<KeyRelease>', lambda e: self.atualizar_tempos_aleatorios())  # ← NOVO
         self.entry_tempo_max.bind('<FocusOut>', lambda e: self.atualizar_tempos_aleatorios())   # ← NOVO
-        ttk.Label(self.frame_tempo_aleatorio, text="segundos").pack(side=tk.LEFT, padx=5)
+        ttk.Label(self.frame_tempo_aleatorio, text="seconds").pack(side=tk.LEFT, padx=5)
         
         # Mostrar tempo fixo por padrão
         self.frame_tempo_fixo.pack(fill=tk.X, pady=5)
     
     def criar_frame_etapas(self, parent):
         """Frame de edição de etapas"""
-        frame = ttk.LabelFrame(parent, text="🎯 Etapas do Macro", padding=10)
+        frame = ttk.LabelFrame(parent, text="🎯 Macro Steps", padding=10)
         frame.pack(fill=tk.BOTH, expand=True, pady=5, padx=10)
         
         # Cabeçalho da tabela
@@ -284,13 +285,13 @@ class EditorMacros:
         ttk.Label(cabecalho, text="#", width=3).pack(side=tk.LEFT, padx=2)
 
         # ↓↓↓ NOVA COLUNA "TIPO" ↓↓↓
-        ttk.Label(cabecalho, text="Tipo", width=6).pack(side=tk.LEFT, padx=2)
-        ttk.Label(cabecalho, text="Ação", width=22).pack(side=tk.LEFT, padx=2, fill=tk.X, expand=True)
-        ttk.Label(cabecalho, text="Tempo (s)", width=10).pack(side=tk.LEFT, padx=2)
+        ttk.Label(cabecalho, text="Type", width=6).pack(side=tk.LEFT, padx=2)
+        ttk.Label(cabecalho, text="Action", width=22).pack(side=tk.LEFT, padx=2, fill=tk.X, expand=True)
+        ttk.Label(cabecalho, text="Time (s)", width=10).pack(side=tk.LEFT, padx=2)
 
         if self.var_repetir_acoes.get():
-            ttk.Label(cabecalho, text="Repetições", width=8).pack(side=tk.LEFT, padx=2)
-        ttk.Label(cabecalho, text="Controles", width=15).pack(side=tk.LEFT, padx=2)
+            ttk.Label(cabecalho, text="Repeats", width=8).pack(side=tk.LEFT, padx=2)
+        ttk.Label(cabecalho, text="Controls", width=15).pack(side=tk.LEFT, padx=2)
         
         # Frame scrollável para etapas
         container_etapas = ttk.Frame(frame)
@@ -312,26 +313,26 @@ class EditorMacros:
         scrollbar_etapas.pack(side="right", fill="y")
         
         # Botão adicionar etapa
-        ttk.Button(frame, text="➕ Adicionar Etapa", command=self.adicionar_etapa).pack(pady=10)
+        ttk.Button(frame, text="➕ Add Step", command=self.adicionar_etapa).pack(pady=10)
         
         self.frame_etapas = self.scrollable_frame
     
     def criar_frame_preview(self, parent):
         """Frame de preview do teclado (simplificado)"""
-        frame = ttk.LabelFrame(parent, text="⌨️ Preview do Teclado", padding=10)
+        frame = ttk.LabelFrame(parent, text="⌨️ Keyboard Preview", padding=10)
         frame.pack(fill=tk.X, pady=5, padx=10)
         
         # Área simplificada do teclado
-        self.label_preview = tk.Label(frame, text="Teclado PT - Layout detectado\nClique em uma caixa de ação e pressione as teclas desejadas", 
+        self.label_preview = tk.Label(frame, text="PT/BR Keyboard - Layout detected\nClick on an action box and press the desired keys", 
                                      bg="lightgray", height=4, font=("Arial", 10), justify=tk.LEFT)
         self.label_preview.pack(fill=tk.X, padx=5, pady=5)
         
-        ttk.Button(frame, text="🔄 Atualizar Preview", command=self.atualizar_preview).pack(pady=5)
+        ttk.Button(frame, text="🔄 Update Preview", command=self.atualizar_preview).pack(pady=5)
     
     def configurar_hotkeys_dialog(self):
         """Abre diálogo para configurar hotkeys"""
         dialog = tk.Toplevel(self.janela)
-        dialog.title("Configurar Hotkeys")
+        dialog.title("Configure Hotkeys")
         dialog.geometry("500x300")  # Tamanho fixo adequado
         dialog.resizable(False, False)  # Não redimensionável
         dialog.transient(self.janela)
@@ -341,7 +342,7 @@ class EditorMacros:
         main_frame = ttk.Frame(dialog, padding=20)
         main_frame.pack(fill=tk.BOTH, expand=True)
         
-        tk.Label(main_frame, text="Configurar Hotkeys", 
+        tk.Label(main_frame, text="Configure Hotkeys", 
                 font=("Arial", 14, "bold")).pack(pady=(0, 20))
         
         # Frame para as hotkeys - usando grid para alinhamento perfeito
@@ -349,27 +350,27 @@ class EditorMacros:
         keys_frame.pack(fill=tk.X, pady=10)
         
         # Hotkey Iniciar
-        ttk.Label(keys_frame, text="Iniciar:", width=12).grid(row=0, column=0, padx=5, pady=8, sticky="w")
+        ttk.Label(keys_frame, text="Start:", width=12).grid(row=0, column=0, padx=5, pady=8, sticky="w")
         entry_iniciar = ttk.Entry(keys_frame, width=20)
         entry_iniciar.insert(0, self.hotkey_iniciar)
         entry_iniciar.grid(row=0, column=1, padx=5, pady=8, sticky="ew")
-        ttk.Button(keys_frame, text="Detectar", width=8,
+        ttk.Button(keys_frame, text="Detect", width=8,
                 command=lambda: self.detectar_hotkey(entry_iniciar)).grid(row=0, column=2, padx=5, pady=8)
         
         # Hotkey Parar
-        ttk.Label(keys_frame, text="Parar:", width=12).grid(row=1, column=0, padx=5, pady=8, sticky="w")
+        ttk.Label(keys_frame, text="Stop:", width=12).grid(row=1, column=0, padx=5, pady=8, sticky="w")
         entry_parar = ttk.Entry(keys_frame, width=20)
         entry_parar.insert(0, self.hotkey_parar)
         entry_parar.grid(row=1, column=1, padx=5, pady=8, sticky="ew")
-        ttk.Button(keys_frame, text="Detectar", width=8,
+        ttk.Button(keys_frame, text="Detect", width=8,
                 command=lambda: self.detectar_hotkey(entry_parar)).grid(row=1, column=2, padx=5, pady=8)
         
-        # Hotkey Captura Mouse
-        ttk.Label(keys_frame, text="Cap. Mouse:", width=12).grid(row=2, column=0, padx=5, pady=8, sticky="w")
+        # Hotkey Mouse Capture
+        ttk.Label(keys_frame, text="Mouse Capt.:", width=12).grid(row=2, column=0, padx=5, pady=8, sticky="w")
         entry_captura = ttk.Entry(keys_frame, width=20)
         entry_captura.insert(0, self.hotkey_captura_mouse)
         entry_captura.grid(row=2, column=1, padx=5, pady=8, sticky="ew")
-        ttk.Button(keys_frame, text="Detectar", width=8,
+        ttk.Button(keys_frame, text="Detect", width=8,
                 command=lambda: self.detectar_hotkey(entry_captura)).grid(row=2, column=2, padx=5, pady=8)
         
         # Configurar grid weights para responsividade
@@ -386,11 +387,11 @@ class EditorMacros:
             self.configurar_hotkeys()
             self.salvar_configuracoes_globais()
             dialog.destroy()
-            messagebox.showinfo("Sucesso", "Hotkeys atualizadas!")
+            messagebox.showinfo("Success", "Hotkeys updated!")
         
         ttk.Button(buttons_frame, text="Aplicar", command=aplicar).pack(side=tk.LEFT, padx=5)
-        ttk.Button(buttons_frame, text="Cancelar", command=dialog.destroy).pack(side=tk.LEFT, padx=5)
-        ttk.Button(buttons_frame, text="Padrão", 
+        ttk.Button(buttons_frame, text="Cancel", command=dialog.destroy).pack(side=tk.LEFT, padx=5)
+        ttk.Button(buttons_frame, text="Default", 
                 command=lambda: [
                     entry_iniciar.delete(0, tk.END), entry_iniciar.insert(0, "ctrl+enter"),
                     entry_parar.delete(0, tk.END), entry_parar.insert(0, "esc"),
@@ -405,24 +406,24 @@ class EditorMacros:
 
     def criar_frame_controles(self, parent):
         """Frame de controles e status"""
-        frame = ttk.LabelFrame(parent, text="🚀 Controles", padding=10)
+        frame = ttk.LabelFrame(parent, text="🚀 Controls", padding=10)
         frame.pack(fill=tk.X, pady=5, padx=10)
             
         # Botões de controle
         botoes_frame = ttk.Frame(frame)
         botoes_frame.pack(fill=tk.X, pady=5)
         
-        self.btn_iniciar = ttk.Button(botoes_frame, text="▶️ INICIAR", command=self.iniciar_execucao)
+        self.btn_iniciar = ttk.Button(botoes_frame, text="▶️ START", command=self.iniciar_execucao)
         self.btn_iniciar.pack(side=tk.LEFT, padx=5)
         
-        self.btn_parar = ttk.Button(botoes_frame, text="⏹️ PARAR", command=self.parar_execucao, state="disabled")
+        self.btn_parar = ttk.Button(botoes_frame, text="⏹️ STOP", command=self.parar_execucao, state="disabled")
         self.btn_parar.pack(side=tk.LEFT, padx=5)
 
-        ttk.Button(botoes_frame, text="⚙️ Config Hotkeys", 
+        ttk.Button(botoes_frame, text="⚙️ Configure Hotkeys", 
           command=self.configurar_hotkeys_dialog).pack(side=tk.LEFT, padx=5)
         
         # Status
-        self.label_status = tk.Label(frame, text="Status: Pronto", font=("Arial", 10), fg="blue")
+        self.label_status = tk.Label(frame, text="Status: Ready", font=("Arial", 10), fg="blue")
         self.label_status.pack(anchor="w", pady=2)
         
         
@@ -463,28 +464,28 @@ class EditorMacros:
         resize_handle.bind('<ButtonRelease-1>', stop_resize)
 
         # Hotkeys info
-        info_hotkeys = tk.Label(frame, text=f"Hotkeys: {self.hotkey_iniciar}=Iniciar, {self.hotkey_parar}=Parar, {self.hotkey_captura_mouse}=Capt.Mouse", 
+        info_hotkeys = tk.Label(frame, text=f"Hotkeys: {self.hotkey_iniciar}=Start, {self.hotkey_parar}=Stop, {self.hotkey_captura_mouse}=Mouse Capt.", 
                             font=("Arial", 8), fg="gray")
         info_hotkeys.pack(anchor="w")
 
 
         # Hotkeys info
         info_hotkeys = tk.Label(frame, 
-                            text=f"Hotkeys: {self.hotkey_iniciar}=Iniciar, {self.hotkey_parar}=Parar, {self.hotkey_captura_mouse}=Capt.Mouse", 
+                            text=f"Hotkeys: {self.hotkey_iniciar}=Start, {self.hotkey_parar}=Stop, {self.hotkey_captura_mouse}=Mouse Capt.", 
                             font=("Arial", 8), fg="gray")
 
     def detectar_hotkey(self, entry_widget):
         """Detecta uma hotkey pressionada pelo usuário"""
         dialog = tk.Toplevel(self.janela)
-        dialog.title("Detectar Hotkey")
+        dialog.title("Detect Hotkey")
         dialog.geometry("400x200")
         dialog.transient(self.janela)
         dialog.grab_set()
         
-        tk.Label(dialog, text="Pressione a combinação de teclas desejada\n\nClique em ✕ quando terminar", 
+        tk.Label(dialog, text="Press the desired key combination\n\nClick X when finished", 
                 font=("Arial", 10), justify=tk.CENTER).pack(pady=20)
         
-        lbl_status = tk.Label(dialog, text="Aguardando...", fg="blue")
+        lbl_status = tk.Label(dialog, text="Waiting...", fg="blue")
         lbl_status.pack(pady=10)
         
         teclas_pressionadas = set()
@@ -522,7 +523,7 @@ class EditorMacros:
             
             entry_widget.delete(0, tk.END)
             entry_widget.insert(0, hotkey)
-            lbl_status.config(text=f"Detectado: {hotkey}")
+            lbl_status.config(text=f"Detected: {hotkey}")
         
         def on_key_release(e):
             tecla = e.keysym
@@ -546,7 +547,7 @@ class EditorMacros:
         dialog.bind('<KeyRelease>', on_key_release)
         
         # Botão para fechar manualmente — label padronizado
-        btn_fechar = ttk.Button(dialog, text="Confirmar", command=finalizar_deteccao)
+        btn_fechar = ttk.Button(dialog, text="Confirm", command=finalizar_deteccao)
         btn_fechar.pack(pady=10)
         
         dialog.focus_set()
@@ -573,9 +574,9 @@ class EditorMacros:
         self.frame_tempo_aleatorio.pack_forget()
         
         # Mostrar o frame correto
-        if modo == "fixo":
+        if modo == "steady":
             self.frame_tempo_fixo.pack(fill=tk.X, pady=5)
-        elif modo == "aleatório":
+        elif modo == "random":
             self.frame_tempo_aleatorio.pack(fill=tk.X, pady=5)
 
         # Atualizar a lista de etapas para refletir a mudança
@@ -586,7 +587,7 @@ class EditorMacros:
         """Cria cópias de uma etapa - VERSÃO CORRIGIDA"""
         if 0 <= index < len(self.macro_atual["etapas"]):
             dialog = tk.Toplevel(self.janela)
-            dialog.title("Copiar Etapa")
+            dialog.title("Copy Step")
             dialog.geometry("300x200")
             dialog.resizable(False, False)
             dialog.transient(self.janela)
@@ -601,12 +602,12 @@ class EditorMacros:
             # **CORREÇÃO: Usar grid para layout preciso**
             
             # Label
-            label = tk.Label(dialog, text="Quantas cópias deseja criar?", 
+            label = tk.Label(dialog, text="How many copies?", 
                             font=("Arial", 11))
             label.grid(row=0, column=0, columnspan=2, pady=20, padx=20)
             
             # Input
-            ttk.Label(dialog, text="Cópias:").grid(row=1, column=0, padx=5, pady=10, sticky="e")
+            ttk.Label(dialog, text="Copies:").grid(row=1, column=0, padx=5, pady=10, sticky="e")
             
             entry_copias = ttk.Entry(dialog, width=10)
             entry_copias.insert(0, "1")
@@ -624,10 +625,10 @@ class EditorMacros:
                         self.atualizar_lista_etapas()
                         dialog.destroy()
                 except ValueError:
-                    messagebox.showerror("Erro", "Digite um número válido!")
+                    messagebox.showerror("Error", "Enter a valid number!")
             
             # Botão
-            btn_confirmar = ttk.Button(dialog, text="Confirmar", command=confirmar_copias)
+            btn_confirmar = ttk.Button(dialog, text="Confirm", command=confirmar_copias)
             btn_confirmar.grid(row=2, column=0, columnspan=2, pady=15)
             
             # Configurar grid weights
@@ -645,8 +646,8 @@ class EditorMacros:
     def adicionar_etapa(self):
         """Adiciona uma nova etapa à lista"""
         etapa = {
-            "tipo": "teclado",  # ← NOVO CAMPO
-            "acao": "Clique para definir tecla", 
+            "tipo": "keyboard",  # ← NOVO CAMPO
+            "acao": "Click to set key", 
             "tempo": "0.3", 
             "repeticoes": 1,
             "x": 0,  # ← NOVO CAMPO (para mouse)
@@ -689,12 +690,12 @@ class EditorMacros:
         if 0 <= index < len(self.macro_atual["etapas"]):
             # Criar diálogo de seleção
             dialog = tk.Toplevel(self.janela)
-            dialog.title("Selecionar Ação de Mouse")
+            dialog.title("Select Mouse Action")
             dialog.geometry("300x300")
             dialog.transient(self.janela)
             dialog.grab_set()
             
-            tk.Label(dialog, text="Selecione a ação de mouse:", 
+            tk.Label(dialog, text="Select mouse action:", 
                     font=("Arial", 11)).pack(pady=15)
             
             # Frame para ações
@@ -702,16 +703,16 @@ class EditorMacros:
             frame_acoes.pack(fill=tk.BOTH, expand=True, padx=20, pady=10)
             
             # Variável para armazenar seleção
-            acao_selecionada = tk.StringVar(value=self.macro_atual["etapas"][index].get("acao", "mover"))
+            acao_selecionada = tk.StringVar(value=self.macro_atual["etapas"][index].get("acao", "move"))
             
             # Botões para cada ação
             acoes_info = [
-                ("mover", "🖱️ Mover", "Apenas move o cursor"),
-                ("clique_esquerdo", "🖱️ Clique Esquerdo", "Clique com botão esquerdo"),
-                ("clique_direito", "🖱️ Clique Direito", "Clique com botão direito"), 
-                ("clique_meio", "🖱️ Clique Meio", "Clique com botão do meio"),
-                ("duplo_clique_esquerdo", "🖱️ Duplo Clique Esq.", "Duplo clique esquerdo"),
-                ("duplo_clique_direito", "🖱️ Duplo Clique Dir.", "Duplo clique direito")
+                ("move", "🖱️ Move", "Only moves the cursor"),
+                ("left_click", "🖱️ Left Click", "Click with left button"),
+                ("right_click", "🖱️ Right Click", "Click with right button"), 
+                ("middle_click", "🖱️ Middle Click", "Click with middle button"),
+                ("double_left_click", "🖱️ Double Left Click", "Double left click"),
+                ("double_right_click", "🖱️ Double Right Click", "Double right click")
             ]
             
             for acao_id, acao_texto, acao_desc in acoes_info:
@@ -730,11 +731,11 @@ class EditorMacros:
                 self.atualizar_lista_etapas()
                 dialog.destroy()
             
-            # Botões de ação — APENAS "Confirmar"
+            # Botões de ação — APENAS "Confirm"
             frame_botoes = ttk.Frame(dialog)
             frame_botoes.pack(pady=10)
             
-            ttk.Button(frame_botoes, text="Confirmar", command=aplicar_acao).pack(side=tk.LEFT, padx=5)
+            ttk.Button(frame_botoes, text="Confirm", command=aplicar_acao).pack(side=tk.LEFT, padx=5)
             
             # Evita execução acidental e permite fechar com X
             dialog.protocol("WM_DELETE_WINDOW", lambda: dialog.destroy())
@@ -756,19 +757,19 @@ class EditorMacros:
         """Atualiza o tipo de uma etapa de forma escalável"""
         if 0 <= index < len(self.macro_atual["etapas"]):
             etapa = self.macro_atual["etapas"][index]
-            tipo_antigo = etapa.get("tipo", "teclado")
+            tipo_antigo = etapa.get("tipo", "keyboard")
             
             if tipo_antigo != novo_tipo:
                 etapa["tipo"] = novo_tipo
                 
                 # Sistema de reset por tipo (ESCALÁVEL)
                 config_por_tipo = {
-                    "teclado": {
-                        "acao_padrao": "Clique para definir tecla",
+                    "keyboard": {
+                        "acao_padrao": "Click to set key",
                         "resetar_coordenadas": True
                     },
                     "mouse": {
-                        "acao_padrao": "mover", 
+                        "acao_padrao": "move", 
                         "resetar_coordenadas": False
                     }
                 }
@@ -807,7 +808,7 @@ class EditorMacros:
         
         # Criar janela de captura
         captura_window = tk.Toplevel(self.janela)
-        captura_window.title("Capturar Posição do Mouse")
+        captura_window.title("Capture Mouse Position")
         captura_window.geometry("400x300")
         captura_window.transient(self.janela)
         captura_window.grab_set()
@@ -815,7 +816,7 @@ class EditorMacros:
         # Tornar a janela semi-transparente
         captura_window.attributes('-alpha', 0.7)
         
-        tk.Label(captura_window, text="Mova o mouse para a posição desejada\n\nPressione a hotkey para capturar", 
+        tk.Label(captura_window, text="Move mouse to desired position\n\nPress hotkey to capture", 
                 font=("Arial", 12), justify=tk.CENTER).pack(pady=20)
         
         # Frame para informações em tempo real
@@ -827,7 +828,7 @@ class EditorMacros:
         coords_label.pack()
         
         # Cor do pixel
-        color_label = tk.Label(info_frame, text="Cor: #000000", font=("Arial", 10), fg="gray")
+        color_label = tk.Label(info_frame, text="Color: #000000", font=("Arial", 10), fg="gray")
         color_label.pack()
         
         # Preview da cor
@@ -863,7 +864,7 @@ class EditorMacros:
                     color_label.config(text=f"Cor: {hex_color}")
                     color_preview.config(bg=hex_color)
                 except Exception:
-                    color_label.config(text="Cor: N/A")
+                    color_label.config(text="Color: N/A")
                 
                 # Continuar atualizando apenas se a janela estiver aberta
                 if janela_aberta:
@@ -916,15 +917,15 @@ class EditorMacros:
                 self.macro_atual["etapas"][index]["y"] = y
                 self.atualizar_lista_etapas()
         
-    # Botão cancelar (pode ser renomeado para "Confirmar" se preferir)
-        btn_cancelar = ttk.Button(captura_window, text="Cancelar", command=cancelar_captura)
+    # Botão cancelar (pode ser renomeado para "Confirm" se preferir)
+        btn_cancelar = ttk.Button(captura_window, text="Cancel", command=cancelar_captura)
         btn_cancelar.pack(pady=10)
         
         # Configurar hotkey para captura
         try:
             keyboard.add_hotkey(self.hotkey_captura_mouse, capturar_posicao)
         except Exception as e:
-            print(f"Erro ao configurar hotkey de captura: {e}")
+            print(f"Error configuring capture hotkey: {e}")
         
         # Iniciar preview
         atualizar_preview()
@@ -943,32 +944,32 @@ class EditorMacros:
         ttk.Label(linha, text=str(index + 1), width=3).pack(side=tk.LEFT, padx=2)
 
         # Dropdown Tipo (Teclado/Mouse)
-        combo_tipo = ttk.Combobox(linha, values=["teclado", "mouse"], width=6, state="readonly")
-        combo_tipo.set(etapa.get("tipo", "teclado"))
+        combo_tipo = ttk.Combobox(linha, values=["keyboard", "mouse"], width=6, state="readonly")
+        combo_tipo.set(etapa.get("tipo", "keyboard"))
         combo_tipo.pack(side=tk.LEFT, padx=2)
         combo_tipo.bind('<<ComboboxSelected>>', 
                     lambda e, i=index: self.atualizar_tipo_etapa(i, combo_tipo.get()))
 
         # Ação - Botão que muda conforme o tipo
-        tipo_etapa = etapa.get("tipo", "teclado")
+        tipo_etapa = etapa.get("tipo", "keyboard")
         
         # Texto amigável para ações
         texto_acao = etapa["acao"]
-        if texto_acao == "Clique para definir tecla":
+        if texto_acao == "Click to set key":
             pass  # Mantém texto original
         elif tipo_etapa == "mouse":
             textos_amigaveis = {
-                "mover": "🖱️ Mover",
-                "clique_esquerdo": "🖱️ Clique Esq.", 
-                "clique_direito": "🖱️ Clique Dir.",
-                "clique_meio": "🖱️ Clique Meio",
-                "duplo_clique_esquerdo": "🖱️ Duplo Clique Esq.",
-                "duplo_clique_direito": "🖱️ Duplo Clique Dir."
+                "move": "🖱️ Move",
+                "left_click": "🖱️ Left Click", 
+                "right_click": "🖱️ Right Click",
+                "middle_click": "🖱️ Middle Click",
+                "double_left_click": "🖱️ Double Left Click",
+                "double_right_click": "🖱️ Double Right Click"
             }
             texto_acao = textos_amigaveis.get(etapa["acao"], etapa["acao"])
 
         # Botão de ação
-        if tipo_etapa == "teclado":
+        if tipo_etapa == "keyboard":
             btn_acao = ttk.Button(linha, text=texto_acao, width=22, 
                                 command=lambda i=index: self.configurar_tecla(i))
         else:
@@ -981,7 +982,7 @@ class EditorMacros:
 
         # Tempo - mostra conforme o modo
         modo_tempo = self.combo_modo_tempo.get()
-        if modo_tempo == "personalizado":
+        if modo_tempo == "personalized":
             entry_tempo = ttk.Entry(linha, width=8, validate="key")
             entry_tempo.configure(validatecommand=(entry_tempo.register(self.validar_numero), '%P'))
             entry_tempo.insert(0, etapa["tempo"])
@@ -989,7 +990,7 @@ class EditorMacros:
             entry_tempo.bind('<FocusOut>', lambda e, i=index: self.atualizar_tempo_etapa(i, entry_tempo.get()))
         else:
             # Texto informativo baseado no modo
-            if modo_tempo == "fixo":
+            if modo_tempo == "steady":
                 texto_tempo = self.entry_tempo_fixo.get()
             else:  # aleatório
                 min_t = self.entry_tempo_min.get()
@@ -1084,17 +1085,17 @@ class EditorMacros:
         self.aguardando_tecla = True
         self.tecla_atual = ""
         
-        dialog, main_frame = self.criar_dialogo_padrao("Detectar Tecla", 400, 200)
+        dialog, main_frame = self.criar_dialogo_padrao("Detect Key", 400, 200)
         
         # Conteúdo clean
-        tk.Label(main_frame, text="Pressione a tecla desejada", 
+        tk.Label(main_frame, text="Press desired key", 
                 font=("Arial", 12)).pack(pady=15)
         
-        lbl_status = tk.Label(main_frame, text="Aguardando...", font=("Arial", 10), fg="blue")
+        lbl_status = tk.Label(main_frame, text="Waiting...", font=("Arial", 10), fg="blue")
         lbl_status.pack(pady=10)
         
         # Botão clean e discreto
-        btn_confirmar = ttk.Button(main_frame, text="Confirmar")
+        btn_confirmar = ttk.Button(main_frame, text="Confirm")
         btn_confirmar.pack(pady=15)
         
         teclas_pressionadas = set()
@@ -1128,7 +1129,7 @@ class EditorMacros:
                 tecla_completa = ""
             
             self.tecla_atual = tecla_completa
-            lbl_status.config(text=f"Tecla: {tecla_completa}")
+            lbl_status.config(text=f"Key: {tecla_completa}")
         
         def on_key_release(e):
             tecla = e.keysym
@@ -1176,7 +1177,7 @@ class EditorMacros:
             if self.validar_numero(tempo):
                 self.macro_atual["etapas"][index]["tempo"] = tempo
             else:
-                messagebox.showerror("Erro", "Tempo deve ser um número!")
+                messagebox.showerror("Error", "Time must be a number!")
     
     def mover_etapa(self, index, direcao):
         """Move uma etapa para cima ou para baixo"""
@@ -1193,9 +1194,9 @@ class EditorMacros:
         """Abre editor manual para a etapa (fallback)"""
         etapa = self.macro_atual["etapas"][index]
         
-        dialog, main_frame = self.criar_dialogo_padrao("Editar Ação Manualmente", 400, 200)
+        dialog, main_frame = self.criar_dialogo_padrao("Edit Action Manually", 400, 200)
         
-        tk.Label(main_frame, text="Digite a ação manualmente:", 
+        tk.Label(main_frame, text="Enter action manually:", 
                 font=("Arial", 11)).pack(pady=15)
         
         entry_acao = ttk.Entry(main_frame, width=30, font=("Arial", 10))
@@ -1211,11 +1212,11 @@ class EditorMacros:
                 self.atualizar_lista_etapas()
                 dialog.destroy()
         
-        # Botões — APENAS "Confirmar"
+        # Botões — APENAS "Confirm"
         buttons_frame = ttk.Frame(main_frame)
         buttons_frame.pack(side=tk.BOTTOM, pady=10)
         
-        ttk.Button(buttons_frame, text="Confirmar", command=confirmar_edicao).pack(side=tk.LEFT, padx=5)
+        ttk.Button(buttons_frame, text="Confirm", command=confirmar_edicao).pack(side=tk.LEFT, padx=5)
         
         # Permitir fechar com Enter ou X
         entry_acao.bind('<Return>', lambda e: confirmar_edicao())
@@ -1238,12 +1239,12 @@ class EditorMacros:
     
     def atualizar_preview(self):
         """Atualiza o preview do teclado"""
-        self.label_preview.config(text="Teclado PT/BR - Layout detectado ✓\nClique em uma caixa de ação e pressione as teclas desejadas")
+        self.label_preview.config(text="PT/BR Keyboard - Layout detected ✓\nClick on an action box and press the desired keys")
     
     def carregar_arquivo(self):
         """Carrega arquivo de macro"""
         arquivo = filedialog.askopenfilename(
-            title="Carregar Macro",
+            title="Load Macro",
             filetypes=[("Arquivos JSON", "*.json"), ("Todos os arquivos", "*.*")]
         )
         if arquivo:
@@ -1251,19 +1252,19 @@ class EditorMacros:
                 with open(arquivo, "r", encoding="utf-8") as f:
                     macro_carregado = json.load(f)
                 
-                nome = macro_carregado.get("nome", "Macro Importado")
+                nome = macro_carregado.get("nome", "Imported Macro")
                 self.macro_atual = macro_carregado
                 self.entry_nome.delete(0, tk.END)
                 self.entry_nome.insert(0, nome)
                 self.spin_repeticoes.set(self.macro_atual.get("repeticoes", 1))
-                self.combo_modo_tempo.set(self.macro_atual.get("modo_tempo", "fixo"))
+                self.combo_modo_tempo.set(self.macro_atual.get("modo_tempo", "steady"))
                 self.atualizar_lista_etapas()
                 self.atualizar_interface_tempo()
                 
-                messagebox.showinfo("Sucesso", f"Macro '{nome}' carregado com sucesso!")
+                messagebox.showinfo("Success", f"Macro '{nome}' carregado com sucesso!")
                 
             except Exception as e:
-                messagebox.showerror("Erro", f"Erro ao carregar arquivo: {e}")
+                messagebox.showerror("Error", f"Error loading file: {e}")
     
     def carregar_macro_selecionado(self, event=None):
         """Carrega o macro selecionado no combobox"""
@@ -1273,7 +1274,7 @@ class EditorMacros:
             self.entry_nome.delete(0, tk.END)
             self.entry_nome.insert(0, nome)
             self.spin_repeticoes.set(self.macro_atual.get("repeticoes", 1))
-            self.combo_modo_tempo.set(self.macro_atual.get("modo_tempo", "fixo"))
+            self.combo_modo_tempo.set(self.macro_atual.get("modo_tempo", "steady"))
             self.atualizar_lista_etapas()
             self.atualizar_interface_tempo()
             self.var_repetir_acoes.set(self.macro_atual.get("repetir_acoes", False))
@@ -1281,19 +1282,19 @@ class EditorMacros:
 
     def novo_macro(self):
         """Cria um novo macro"""
-        self.macro_atual = {"nome": "Novo Macro", "etapas": [], "repeticoes": 1, "modo_tempo": "fixo", "tempo_fixo": "0.3"}
+        self.macro_atual = {"nome": "New Macro", "etapas": [], "repeticoes": 1, "modo_tempo": "steady", "tempo_fixo": "0.3"}
         self.entry_nome.delete(0, tk.END)
-        self.entry_nome.insert(0, "Novo Macro")
+        self.entry_nome.insert(0, "New Macro")
         self.spin_repeticoes.set(1)
-        self.combo_modo_tempo.set("fixo")
+        self.combo_modo_tempo.set("steady")
         self.atualizar_lista_etapas()
         self.atualizar_interface_tempo()
 
     def editar_nome_macro(self):
         """Permite editar o nome do macro atual"""
-        dialog, main_frame = self.criar_dialogo_padrao("Editar Nome do Macro", 400, 200)
+        dialog, main_frame = self.criar_dialogo_padrao("Edit Macro Name", 400, 200)
         
-        tk.Label(main_frame, text="Novo nome para o macro:", 
+        tk.Label(main_frame, text="New name for the macro:", 
                 font=("Arial", 11)).pack(pady=15)
         
         entry_nome = ttk.Entry(main_frame, width=30, font=("Arial", 10))
@@ -1309,13 +1310,13 @@ class EditorMacros:
                 self.entry_nome.insert(0, novo_nome)
                 dialog.destroy()
             else:
-                messagebox.showerror("Erro", "O nome não pode estar vazio!")
+                messagebox.showerror("Error", "Name cannot be empty!")
         
-        # Botões — APENAS "Confirmar"
+        # Botões — APENAS "Confirm"
         buttons_frame = ttk.Frame(main_frame)
         buttons_frame.pack(side=tk.BOTTOM, pady=10)
         
-        ttk.Button(buttons_frame, text="Confirmar", command=confirmar_nome).pack(side=tk.LEFT, padx=5)
+        ttk.Button(buttons_frame, text="Confirm", command=confirmar_nome).pack(side=tk.LEFT, padx=5)
         
         entry_nome.bind('<Return>', lambda e: confirmar_nome())
         dialog.protocol("WM_DELETE_WINDOW", lambda: dialog.destroy())
@@ -1325,7 +1326,7 @@ class EditorMacros:
         """Exclui o macro selecionado"""
         nome = self.combo_macros.get()
         if nome in self.macros:
-            if messagebox.askyesno("Confirmar", f"Excluir macro '{nome}'?"):
+            if messagebox.askyesno("Confirm", f"Delete macro '{nome}'?"):
                 del self.macros[nome]
                 self.combo_macros['values'] = list(self.macros.keys())
                 self.combo_macros.set('')
@@ -1336,7 +1337,7 @@ class EditorMacros:
         """Salva o macro atual"""
         nome = self.entry_nome.get().strip()
         if not nome:
-            messagebox.showerror("Erro", "Digite um nome para o macro!")
+            messagebox.showerror("Error", "Enter a name for the macro!")
             return
         
         # Atualizar dados atuais
@@ -1354,7 +1355,7 @@ class EditorMacros:
         self.combo_macros.set(nome)
         
         self.salvar_macros()
-        messagebox.showinfo("Sucesso", f"Macro '{nome}' salvo com sucesso!")
+        messagebox.showinfo("Success", f"Macro '{nome}' salvo com sucesso!")
     
     def iniciar_execucao(self):
         """Inicia a execução do macro"""
@@ -1362,13 +1363,13 @@ class EditorMacros:
             return
         
         if not self.macro_atual["etapas"]:
-            messagebox.showerror("Erro", "Adicione etapas antes de executar!")
+            messagebox.showerror("Error", "Add steps before executing!")
             return
         
         self.executando = True
         self.btn_iniciar.config(state="disabled")
         self.btn_parar.config(state="normal")
-        self.label_status.config(text="Status: Executando...", fg="green")
+        self.label_status.config(text="Status: Running...", fg="green")
         
         # Executar em thread separada
         self.thread_execucao = threading.Thread(target=self.executar_macro)
@@ -1380,31 +1381,31 @@ class EditorMacros:
         self.executando = False
         self.btn_iniciar.config(state="normal")
         self.btn_parar.config(state="disabled")
-        self.label_status.config(text="Status: Parado", fg="red")
+        self.label_status.config(text="Status: Stopped", fg="red")
     
     def executar_macro(self):
         """Executa o macro (em thread separada)"""
         try:
             repeticoes = int(self.spin_repeticoes.get())
             modo_tempo = self.combo_modo_tempo.get()
-            tempo_fixo = float(self.entry_tempo_fixo.get()) if modo_tempo == "fixo" else 0.3
+            tempo_fixo = float(self.entry_tempo_fixo.get()) if modo_tempo == "steady" else 0.3
             
             for repeticao in range(repeticoes):
                 if not self.executando:
                     break
                 
-                self.atualizar_log(f"▶️ Repetição {repeticao + 1}/{repeticoes}")
+                self.atualizar_log(f"▶️ Repetition {repeticao + 1}/{repeticoes}")
                 
                 for i, etapa in enumerate(self.macro_atual["etapas"]):
                     if not self.executando:
                         break
                     
                     # Atualizar status
-                    tipo_etapa = etapa.get("tipo", "teclado")
+                    tipo_etapa = etapa.get("tipo", "keyboard")
                     if tipo_etapa == "mouse":
-                        self.atualizar_log(f"Etapa {i+1}: 🖱️ {etapa['acao']} em ({etapa.get('x', 0)},{etapa.get('y', 0)})")
+                        self.atualizar_log(f"Step {i+1}: 🖱️ {etapa['acao']} em ({etapa.get('x', 0)},{etapa.get('y', 0)})")
                     else:
-                        self.atualizar_log(f"Etapa {i+1}: {etapa['acao']}")
+                        self.atualizar_log(f"Step {i+1}: {etapa['acao']}")
 
                     # Executar ação com repetições individuais
                     repeticoes_etapa = etapa.get("repeticoes", 1)
@@ -1428,11 +1429,11 @@ class EditorMacros:
                     time.sleep(0.5)  # Pequena pausa entre repetições
             
             if self.executando:
-                self.label_status.config(text="Status: Concluído ✓", fg="darkgreen")
-                self.atualizar_log("✅ Macro concluído!")
+                self.label_status.config(text="Status: Completed ✓", fg="darkgreen")
+                self.atualizar_log("✅ Macro completed!")
         
         except Exception as e:
-            self.atualizar_log(f"❌ Erro: {str(e)}")
+            self.atualizar_log(f"❌ Error: {str(e)}")
         
         finally:
             self.executando = False
@@ -1440,11 +1441,11 @@ class EditorMacros:
             self.btn_parar.config(state="disabled")
     
     def executar_acao(self, etapa):
-        """Executa uma ação (teclado ou mouse)"""
-        tipo = etapa.get("tipo", "teclado")
+        """Executa uma ação (keyboard ou mouse)"""
+        tipo = etapa.get("tipo", "keyboard")
         acao = etapa["acao"]
         
-        if tipo == "teclado":
+        if tipo == "keyboard":
             self.executar_acao_teclado(acao)
         else:
             self.executar_acao_mouse(acao, etapa.get("x", 0), etapa.get("y", 0))
@@ -1466,7 +1467,7 @@ class EditorMacros:
                 time.sleep(0.1)
                 keyboard.release(acao.lower())
         except Exception as e:
-            print(f"Erro ao executar ação de teclado '{acao}': {e}")
+            print(f"Error executing keyboard action '{acao}': {e}")
 
     def executar_acao_mouse(self, acao, x, y):
         """Executa uma ação de mouse"""
@@ -1475,7 +1476,7 @@ class EditorMacros:
             pyautogui.moveTo(x, y, duration=0.1)
             
             # Executar ação específica
-            if acao == "mover":
+            if acao == "move":
                 # Apenas mover - já foi feito acima
                 pass
             elif acao == "clique_esquerdo":
@@ -1489,19 +1490,19 @@ class EditorMacros:
             elif acao == "duplo_clique_direito":
                 pyautogui.doubleClick(button='right')
             else:
-                print(f"Ação de mouse desconhecida: {acao}")
+                print(f"Unknown mouse action: {acao}")
                 
         except Exception as e:
-            print(f"Erro ao executar ação de mouse '{acao}' em ({x},{y}): {e}")
+            print(f"Error executing mouse action '{acao}' at ({x},{y}): {e}")
 
     def calcular_tempo_espera(self, etapa, modo_tempo, tempo_fixo, index_etapa):
         """Calcula o tempo de espera baseado no modo selecionado"""
         try:
-            if modo_tempo == "fixo":
+            if modo_tempo == "steady":
                 return tempo_fixo
-            elif modo_tempo == "personalizado":
+            elif modo_tempo == "personalized":
                 return float(etapa.get("tempo", 0.3))
-            elif modo_tempo == "aleatório":
+            elif modo_tempo == "random":
                 min_tempo = float(self.entry_tempo_min.get())
                 max_tempo = float(self.entry_tempo_max.get())
                 return random.uniform(min_tempo, max_tempo)
