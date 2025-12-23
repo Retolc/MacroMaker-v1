@@ -1,6 +1,6 @@
 # MacroMaker
 
-Keyboard and mouse automation macro recorder/player with GUI.
+Keyboard and mouse automation macro recorder/player with GUI. Just open a terminal, deploy the dependencies and run the MacroMaker-v1.py
 
 ## Features
 
